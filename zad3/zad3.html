@@ -1,0 +1,104 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Zadanie 3</title>
+<style>
+.click
+{
+	background-color: #d0e4fe;
+}
+</style>
+</head>
+<body>
+<script>
+function createT(rows, cols) // main function
+{
+	var clicks = new myClicks(); // creating an object for counting global clicks
+	var colClicks = []; //  creating an array for counting clicks in each column
+	for (var k = 0; k < rows; k++) // preparing column clicks
+	{
+		colClicks.push(0);
+	}
+	var body = document.getElementsByTagName("body")[0];
+	var table = document.createElement("table");
+	var tbody = document.createElement("tbody");
+	for (var i = 0; i < rows; i++)
+	{
+		var tr = document.createElement("tr");
+		for (var j = 0; j < cols; j++)
+		{
+			var td = document.createElement("td");
+			td.innerHTML = String.fromCharCode(i+65)+""+(j+1); // this works from A-Z of course
+			td.setAttribute("data-clicked", "false"); // setting map of clicks
+			if (td.addEventListener)
+			{
+				td.addEventListener("mouseover", highlight);
+				td.addEventListener("mouseout", highlight);
+				td.addEventListener("click", function(){countClicks(this, clicks, colClicks);});
+			}
+			else if (td.attachEvent) // internet explorer
+			{
+				td.attachEvent("onmouseover", highlight);
+				td.attachEvent("onmouseout", highlight);
+				td.attachEvent("onclick", function(){countClicks(this, clicks, colClicks);});
+			}
+			tr.appendChild(td);
+		}
+		tbody.appendChild(tr);
+	}
+	table.appendChild(tbody);
+	body.appendChild(table);
+}
+function highlight() // highlights row and column
+{
+	var col = this.cellIndex;
+	var rows = this.parentNode.parentNode.rows.length;
+	for (var i = 0; i < rows; i++) // highlighting column (td)
+	{
+		var cellinrow = this.parentNode.parentNode.rows[i].cells[col];
+		if (cellinrow.getAttribute("data-clicked") == "false")
+		{
+			cellinrow.classList.toggle("click");
+		}
+	}
+	this.parentNode.classList.toggle("click"); // highlighting row (tr)
+}
+function countClicks(cell, clicks, colClicks) // counting global and local clicks
+{
+	if (cell.getAttribute("data-clicked") == "true")
+	{
+		cell.setAttribute("data-clicked", "false");
+		clicks.sub(); // clicks--
+		colClicks[cell.cellIndex]--;
+	}
+	else
+	{
+		cell.setAttribute("data-clicked", "true");
+		clicks.add(); // clicks++
+		colClicks[cell.cellIndex]++;
+	}
+	var output = "zaznaczonych razem komorek: " + clicks.value; // generating the output message
+	var children = cell.parentNode.childNodes.length;
+	for (var i = 0; i < children; i++)
+	{
+		output += "\nkolumna " + (i+1) + ": " + colClicks[i];
+	}
+	alert(output); // show stats
+}
+function myClicks() // object
+{
+	this.value = 0;
+}
+myClicks.prototype.add = function() // +1 method for object
+{
+	this.value++;
+};
+myClicks.prototype.sub = function() // -1 method for object
+{
+	this.value--;
+};
+createT(10, 10); // launch the function with x rows and y columns
+</script>
+</body>
+</html>
